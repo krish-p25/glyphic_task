@@ -1,6 +1,13 @@
 # Environment variables
 .env
 
+# Package managers
+package-lock.json
+package.json
+yarn.lock
+
 # API keys
 *.txt
 
+/node_modules
+/backend/node_modules
