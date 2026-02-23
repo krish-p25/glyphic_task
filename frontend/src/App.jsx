@@ -1,35 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 
 const initialMessages = [
-  {
-    id: 1,
-    role: 'assistant',
-    content:
-      'Hey! I can help you design a crisp chat experience. What should we build today?',
-    time: '09:41',
-  },
-  {
-    id: 2,
-    role: 'user',
-    content:
-      'We need a single-page chat screen that feels premium and focused.',
-    time: '09:42',
-  },
+  
 ]
 
 const initialHistory = [
-  {
-    id: 'chat-1',
-    title: 'Product Design Sync',
-    summary: 'UI direction and layout decisions',
-    updatedAt: 'Today · 09:42',
-  },
-  {
-    id: 'chat-2',
-    title: 'Agent Tone',
-    summary: 'Define voice guidelines',
-    updatedAt: 'Yesterday · 16:18',
-  },
+  
 ]
 
 function App() {
@@ -123,7 +99,7 @@ function App() {
           <div>
             <p className="text-lg font-semibold">Glyphic Agent</p>
             <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-60)]">
-              Responsive · Focused · Calm
+              The Salesman in your pocket.
             </p>
           </div>
         </div>
@@ -149,7 +125,7 @@ function App() {
               </p>
             </div>
             <button
-              className="rounded-full border border-black/15 px-4 py-2 text-xs font-semibold text-[color:var(--ink-80)] transition hover:-translate-y-0.5"
+              className="cursor-pointer rounded-full border border-black/15 px-4 py-2 text-xs font-semibold text-[color:var(--ink-80)] transition hover:-translate-y-0.5"
               type="button"
             >
               New thread
@@ -200,7 +176,7 @@ function App() {
             className="flex flex-wrap items-end gap-4 border-t border-black/10 px-6 pb-6 pt-4"
             onSubmit={sendMessage}
           >
-            <div className="flex flex-1 flex-col gap-3 rounded-[20px] bg-[#f7f5f1] px-4 py-3">
+            <div className="flex flex-1 flex-col gap-3 rounded-[20px] bg-[#f7f5f1] px-4 py-3 h-12">
               <textarea
                 rows="1"
                 className="w-full resize-none bg-transparent text-sm text-[color:var(--ink-100)] outline-none"
@@ -208,23 +184,9 @@ function App() {
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
               />
-              <div className="flex gap-2">
-                <button
-                  className="rounded-full bg-[#1a2a3b]/10 px-3 py-1 text-xs text-[color:var(--ink-80)]"
-                  type="button"
-                >
-                  Attach
-                </button>
-                <button
-                  className="rounded-full bg-[#1a2a3b]/10 px-3 py-1 text-xs text-[color:var(--ink-80)]"
-                  type="button"
-                >
-                  Prompt
-                </button>
-              </div>
             </div>
             <button
-              className="h-12 rounded-[18px] bg-gradient-to-br from-[#101820] to-[#273449] px-6 text-sm font-semibold text-[#f5f0e6] shadow-[0_12px_30px_rgba(15,18,20,0.12)] transition hover:-translate-y-0.5"
+              className="h-12 cursor-pointer rounded-[18px] bg-gradient-to-br from-[#101820] to-[#273449] px-6 text-sm font-semibold text-[#f5f0e6] shadow-[0_12px_30px_rgba(15,18,20,0.12)] transition hover:-translate-y-0.5"
               type="submit"
             >
               Send
@@ -238,7 +200,7 @@ function App() {
               Chat History
             </p>
             <button
-              className="rounded-full bg-gradient-to-br from-[#101820] to-[#273449] px-4 py-2 text-xs font-semibold text-[#f5f0e6]"
+              className="cursor-pointer rounded-full bg-gradient-to-br from-[#101820] to-[#273449] px-4 py-2 text-xs font-semibold text-[#f5f0e6]"
               type="button"
             >
               New chat
