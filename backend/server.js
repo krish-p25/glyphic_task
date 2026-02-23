@@ -10,7 +10,7 @@ const { testConnection } = require('./src/models/config.js');
 testConnection();
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`✅ Server is running on port ${PORT}`);
 });
 
 app.get('/', (req, res) => {
