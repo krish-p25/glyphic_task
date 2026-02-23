@@ -15,7 +15,7 @@ function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [chatHistory] = useState([])
+  const [chatHistory, setChatHistory] = useState([])
   const [connectionStatus, setConnectionStatus] = useState('connecting')
 
   useEffect(() => {
@@ -24,16 +24,26 @@ function App() {
     const loadChats = async () => {
       try {
         const response = await fetch('http://localhost:3001/api/chats/get-chats')
-        console.log(response)
+        if (response.ok) {
+          const data = await response.json()
+          let newChats = data.chats.map(chat => {
+            return {
+              id: chat.uuid,
+              title: chat.title,
+              date: new Date(parseFloat(chat.timestamp)).toLocaleString()
+            }
+          })
+          setChatHistory(newChats)
+        }
       }
       catch (err) {
-        console.log('Error loading chats from API')
+        console.log('Error loading chats from API', err)
       }
     }
 
     const checkHealth = async () => {
       try {
-        const response = await fetch('/health')
+        const response = await fetch('http://localhost:3001/health')
         if (response.ok && isMounted) {
           setConnectionStatus('online')
           loadChats()
@@ -218,18 +228,15 @@ function App() {
                 {chatHistory.map((chat) => (
                   <li
                     key={chat.id}
-                    className="flex justify-between gap-4 rounded-[16px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,18,20,0.08)]"
+                    className="flex w-full justify-between gap-4 rounded-[16px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,18,20,0.08)]"
                   >
                     <div>
                       <p className="text-sm font-semibold text-[color:var(--ink-90)]">
                         {chat.title}
                       </p>
-                      <p className="text-xs text-[color:var(--ink-60)]">
-                        {chat.summary}
-                      </p>
                     </div>
-                    <span className="text-[11px] text-[color:var(--ink-50)]">
-                      {chat.updatedAt}
+                    <span className="text-[11px] text-[color:var(--ink-50)] flex items-center">
+                      {chat.date}
                     </span>
                   </li>
                 ))}
