@@ -52,6 +52,35 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const chatId = params.get('chat')
+    if (!chatId) return
+
+    const loadMessages = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/chats/get-messages?chat=${encodeURIComponent(
+            chatId,
+          )}`,
+        )
+        if (!response.ok) return
+        const data = await response.json()
+        const hydrated = data.messages.map((message, index) => ({
+          id: message.uuid ?? `${chatId}-${index}`,
+          source: message.source,
+          content: message.content,
+          time: new Date(parseFloat(message.timestamp)).toLocaleString()
+        }))
+        setMessages(hydrated)
+      } catch (error) {
+        console.log('Error loading messages from API', error)
+      }
+    }
+
+    loadMessages()
+  }, [])
+
   const sendMessage = async (event) => {
     event.preventDefault()
     const trimmed = input.trim()
@@ -59,7 +88,7 @@ function App() {
 
     const nextMessage = {
       id: Date.now(),
-      role: 'user',
+      source: 'user',
       content: trimmed,
       time: new Date().toLocaleTimeString([], {
         hour: '2-digit',
@@ -157,12 +186,12 @@ function App() {
               <div
                 key={message.id}
                 className={`flex ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                  message.source === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
                 <div
                   className={`max-w-[68%] rounded-[20px] px-4 pb-3 pt-4 text-sm leading-relaxed shadow-[0_12px_30px_rgba(15,18,20,0.12)] ${
-                    message.role === 'user'
+                    message.source === 'user'
                       ? 'bg-gradient-to-br from-[#1a2a3b] to-[#2d3f52] text-[#f7f3ed]'
                       : 'bg-[#f2f4f7] text-[color:var(--ink-100)]'
                   }`}
@@ -170,7 +199,7 @@ function App() {
                   <p className="mb-2">{message.content}</p>
                   <span
                     className={`block text-right text-[11px] ${
-                      message.role === 'user'
+                      message.source === 'user'
                         ? 'text-[#f7f3ed]/70'
                         : 'text-[color:var(--ink-50)]'
                     }`}
