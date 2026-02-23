@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 
-const initialMessages = [
-  
-]
-
-const initialHistory = [
-  
-]
-
 function App() {
   const cannedReplies = useMemo(
     () => [
@@ -20,20 +12,31 @@ function App() {
     [],
   )
 
-  const [messages, setMessages] = useState(initialMessages)
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [chatHistory] = useState(initialHistory)
+  const [chatHistory] = useState([])
   const [connectionStatus, setConnectionStatus] = useState('connecting')
 
   useEffect(() => {
     let isMounted = true
+
+    const loadChats = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/chats/get-chats')
+        console.log(response)
+      }
+      catch (err) {
+        console.log('Error loading chats from API')
+      }
+    }
 
     const checkHealth = async () => {
       try {
         const response = await fetch('/health')
         if (response.ok && isMounted) {
           setConnectionStatus('online')
+          loadChats()
         }
       } catch (error) {
         if (isMounted) {
@@ -41,7 +44,6 @@ function App() {
         }
       }
     }
-
     checkHealth()
 
     return () => {
