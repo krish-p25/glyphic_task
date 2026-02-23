@@ -1,22 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function App() {
-  const cannedReplies = useMemo(
-    () => [
-      'Got it. I can help draft a plan and sketch the UI.',
-      'Want me to summarize the key points before we proceed?',
-      'I can generate a lightweight API contract for this flow.',
-      'That sounds doable. Do you want the chat to persist across sessions?',
-      'If you share a bit more context, I can tune the response style.',
-    ],
-    [],
-  )
-
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [chatHistory, setChatHistory] = useState([])
   const [connectionStatus, setConnectionStatus] = useState('connecting')
+  const [sendError, setSendError] = useState('')
+  const [isSending, setIsSending] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -61,10 +52,10 @@ function App() {
     }
   }, [])
 
-  const sendMessage = (event) => {
+  const sendMessage = async (event) => {
     event.preventDefault()
     const trimmed = input.trim()
-    if (!trimmed) return
+    if (!trimmed || isSending) return
 
     const nextMessage = {
       id: Date.now(),
@@ -78,24 +69,40 @@ function App() {
 
     setMessages((prev) => [...prev, nextMessage])
     setInput('')
+    setSendError('')
+    setIsSending(true)
     setIsTyping(true)
 
-    const reply = cannedReplies[Math.floor(Math.random() * cannedReplies.length)]
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          role: 'assistant',
-          content: reply,
-          time: new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+    try {
+      const response = await fetch('http://localhost:3001/api/chats/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ])
+        body: JSON.stringify({ message: trimmed }),
+      })
+
+      if (response.status !== 201) {
+        throw new Error('Unexpected response')
+      }
+
+      const payload = await response.json()
+      const chatId = payload?.uuid
+
+      if (!chatId) {
+        throw new Error('Missing chat id')
+      }
+
+      window.location.assign(
+        `http://localhost:5173/?chat=${encodeURIComponent(chatId)}`,
+      )
+    } catch (error) {
+      setSendError(
+        'We could not start a new chat. Please check the server and try again.',
+      )
+      setIsSending(false)
       setIsTyping(false)
-    }, 900)
+    }
   }
 
   return (
@@ -192,18 +199,25 @@ function App() {
               <textarea
                 rows="1"
                 className="w-full resize-none bg-transparent text-sm text-[color:var(--ink-100)] outline-none"
-                placeholder="Send a message…"
+                placeholder="Send a message..."
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
+                disabled={isSending}
               />
             </div>
             <button
-              className="h-12 cursor-pointer rounded-[18px] bg-gradient-to-br from-[#101820] to-[#273449] px-6 text-sm font-semibold text-[#f5f0e6] shadow-[0_12px_30px_rgba(15,18,20,0.12)] transition hover:-translate-y-0.5"
+              className="h-12 cursor-pointer rounded-[18px] bg-gradient-to-br from-[#101820] to-[#273449] px-6 text-sm font-semibold text-[#f5f0e6] shadow-[0_12px_30px_rgba(15,18,20,0.12)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
               type="submit"
+              disabled={isSending}
             >
-              Send
+              {isSending ? 'Sending...' : 'Send'}
             </button>
           </form>
+          {sendError ? (
+            <div className="px-6 pb-6 text-sm text-[#b0382e]">
+              {sendError}
+            </div>
+          ) : null}
         </section>
 
         <aside className="flex flex-col gap-4 rounded-[26px] bg-white/70 p-6 shadow-[0_12px_30px_rgba(15,18,20,0.12)] backdrop-blur-lg">
