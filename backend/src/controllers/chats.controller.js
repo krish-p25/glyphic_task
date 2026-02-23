@@ -1,6 +1,20 @@
 const { Chat } = require('../models/Chat.js');
 const axios = require('axios');
 
+//Get existing chats
+async function getChats(req, res) {
+    try {
+        const allChats = await Chat.findAll({
+            limit: 50
+        })
+        res.status(200).json({chats: allChats})
+    }
+    catch (error) {
+        console.error('❌ Error getting chats:', error);
+        res.status(500).json({ error: 'Failed to retrive chats' });
+    }
+}
+
 // Create a new chat session
 async function createChat(req, res) {
     try {
@@ -15,5 +29,6 @@ async function createChat(req, res) {
 }
 
 module.exports = {
-    createChat
+    createChat,
+    getChats
 };
