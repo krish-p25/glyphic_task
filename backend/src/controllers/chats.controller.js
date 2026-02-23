@@ -59,17 +59,14 @@ async function CreateChat(req, res) {
                             'The parameters in the API request are: ' +
                             'participant_email (string)' + 
                             'start_time_from (UTC ISO 8601 string)' + 
-                            'start_time_to (UTC ISO 8601 string)' + 
+                            'start_time_to (UTC ISO 8601 string) (current date is 23/02/2026)' + 
                             'title_filter (string)' + 
                             'cursor (string)' + 
                             'limit (integer max 100)' +
                             'the base url for this api call is https://api.staging.glyphic.ai/v1/calls?' + 
                             'add the relevant parameters to the end of this URL and respond with just the API request URL only' + 
-                            'do not include any other text in your response other than just the API URL' + 
-                            'If no API URL can be generated due to lack of information, prompt the user with a message which finelines what informaiton you need.' + 
-                            'If finelining what you need, do not state you are creating an API endpoint or state the exact variable name, state name, email etc.' + 
-                            'Try to create an API URL always where possible ' + 
-                            'Do not prompt the user to provide more information if at least one variable is already in the API URL'
+                            'Do not include any other text in your response other than just the API URL' + 
+                            'Do not prompt the user to provide more information, if there is insufficient informaiton, return just the base URL'
                         }
                     ]
                 }
@@ -92,7 +89,7 @@ async function CreateChat(req, res) {
                     source: 'bot'
                 })
 
-                res.status(201).json({
+                return res.status(201).json({
                     uuid: newChat.uuid,
                     message: claudeResponse.content[0].text.trim()
                 });
@@ -133,6 +130,9 @@ async function CreateChat(req, res) {
                                 type: 'text',
                                 text:
                                     `This is the query from your user: ${message}` + 
+                                    'Respond with a user friendly text pattern' + 
+                                    'Do not refer to variables by name' + 
+                                    'Your response should be non-technical user friendly' +
                                     'The JSON sales data has been stringified below' + 
                                     `${JSON.stringify(CallsData)}`
                             }
