@@ -2,6 +2,11 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
+//CORS
+app.use(cors({
+    origin: ["http://localhost:3000", "http://localhost:5173"],
+}));
+
 //Routes
 const chatsRoutes = require('./routes/chats.routes.js');
 app.use('/api/chats', chatsRoutes);
@@ -10,8 +15,5 @@ app.use('/api/chats', chatsRoutes);
 app.get('/health', (req, res) => {
     res.status(200).json({ message: 'Server is running' });
 });
-
-//CORS
-app.use(cors());
 
 module.exports = app;
