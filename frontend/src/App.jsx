@@ -10,6 +10,7 @@ function App() {
   const [connectionStatus, setConnectionStatus] = useState('connecting')
   const [sendError, setSendError] = useState('')
   const [isSending, setIsSending] = useState(false)
+  const [messagesReady, setMessagesReady] = useState(false)
 
   // Loading of dynamic elements on mount
   useEffect(() => {
@@ -61,7 +62,10 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const chatId = params.get('chat')
-    if (!chatId) return
+    if (!chatId) {
+      setMessagesReady(true)
+      return
+    }
 
     const loadMessages = async () => {
       try {
@@ -79,8 +83,10 @@ function App() {
           time: new Date(parseFloat(message.timestamp)).toLocaleString()
         }))
         setMessages(hydrated)
+        setMessagesReady(true)
       } catch (error) {
         console.log('Error loading messages from API', error)
+        setMessagesReady(true)
       }
     }
 
@@ -154,6 +160,10 @@ function App() {
     )
   }
 
+  const startNewChat = () => {
+    window.location.assign('http://localhost:5173/')
+  }
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden text-[color:var(--ink-100)]">
       <div className="pointer-events-none absolute -left-36 -top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#ffe6b3_0%,rgba(255,230,179,0)_70%)] opacity-35" />
@@ -194,7 +204,11 @@ function App() {
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6">
+          <div
+            className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6 transition-opacity duration-500 ${
+              messagesReady ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -273,8 +287,9 @@ function App() {
             <button
               className="cursor-pointer rounded-full bg-gradient-to-br from-[#101820] to-[#273449] px-4 py-2 text-xs font-semibold text-[#f5f0e6]"
               type="button"
+              onClick={startNewChat}
             >
-              New chat
+              New Chat
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto rounded-[20px] bg-[#f8f7f4]/95 p-4">
