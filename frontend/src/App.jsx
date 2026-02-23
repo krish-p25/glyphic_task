@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const initialMessages = [
   {
@@ -48,6 +48,30 @@ function App() {
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [chatHistory] = useState(initialHistory)
+  const [connectionStatus, setConnectionStatus] = useState('connecting')
+
+  useEffect(() => {
+    let isMounted = true
+
+    const checkHealth = async () => {
+      try {
+        const response = await fetch('/health')
+        if (response.ok && isMounted) {
+          setConnectionStatus('online')
+        }
+      } catch (error) {
+        if (isMounted) {
+          setConnectionStatus('connecting')
+        }
+      }
+    }
+
+    checkHealth()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const sendMessage = (event) => {
     event.preventDefault()
@@ -104,8 +128,14 @@ function App() {
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm text-[color:var(--ink-80)]">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#2bd96b] shadow-[0_0_12px_rgba(43,217,107,0.6)]" />
-          Online
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${
+              connectionStatus === 'online'
+                ? 'bg-[#2bd96b] shadow-[0_0_12px_rgba(43,217,107,0.6)]'
+                : 'bg-[#f2c14b] shadow-[0_0_10px_rgba(242,193,75,0.45)]'
+            }`}
+          />
+          {connectionStatus === 'online' ? 'Online' : 'Connecting to API'}
         </div>
       </header>
 
@@ -115,7 +145,7 @@ function App() {
             <div>
               <p className="text-xl font-semibold">Product Design Sync</p>
               <p className="mt-1 text-sm text-[color:var(--ink-60)]">
-                Last updated just now · Drafting shared notes
+                
               </p>
             </div>
             <button
