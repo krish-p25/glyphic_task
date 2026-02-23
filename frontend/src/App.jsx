@@ -9,9 +9,11 @@ function App() {
   const [sendError, setSendError] = useState('')
   const [isSending, setIsSending] = useState(false)
 
+  // Loading of dynamic elements on mount
   useEffect(() => {
     let isMounted = true
 
+    // Load chat titles in the chat history box
     const loadChats = async () => {
       try {
         const response = await fetch('http://localhost:3001/api/chats/get-chats')
@@ -32,6 +34,7 @@ function App() {
       }
     }
 
+    // Check the status of the API and update element respectively
     const checkHealth = async () => {
       try {
         const response = await fetch('http://localhost:3001/health')
@@ -52,6 +55,7 @@ function App() {
     }
   }, [])
 
+  // Load existing messages within a chats history if a id is present in URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const chatId = params.get('chat')
@@ -81,19 +85,20 @@ function App() {
     loadMessages()
   }, [])
 
+  // Send a message to the backend
+  // Seperate processing for new chat or just send message
   const sendMessage = async (event) => {
     event.preventDefault()
     const trimmed = input.trim()
     if (!trimmed || isSending) return
+    const params = new URLSearchParams(window.location.search)
+    const chatId = params.get('chat')
 
     const nextMessage = {
       id: Date.now(),
       source: 'user',
       content: trimmed,
-      time: new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      time: new Date().toLocaleString()
     }
 
     setMessages((prev) => [...prev, nextMessage])
@@ -102,36 +107,42 @@ function App() {
     setIsSending(true)
     setIsTyping(true)
 
-    try {
-      const response = await fetch('http://localhost:3001/api/chats/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: trimmed }),
-      })
-
-      if (response.status !== 201) {
-        throw new Error('Unexpected response')
-      }
-
-      const payload = await response.json()
-      const chatId = payload?.uuid
-
-      if (!chatId) {
-        throw new Error('Missing chat id')
-      }
-
-      window.location.assign(
-        `http://localhost:5173/?chat=${encodeURIComponent(chatId)}`,
-      )
-    } catch (error) {
-      setSendError(
-        'We could not start a new chat. Please check the server and try again.',
-      )
-      setIsSending(false)
-      setIsTyping(false)
+    if (chatId) {
+      
     }
+    else {
+      try {
+        const response = await fetch('http://localhost:3001/api/chats/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: trimmed }),
+        })
+
+        if (response.status !== 201) {
+          throw new Error('Unexpected response')
+        }
+
+        const payload = await response.json()
+        const chatId = payload?.uuid
+
+        if (!chatId) {
+          throw new Error('Missing chat id')
+        }
+
+        window.location.assign(
+          `http://localhost:5173/?chat=${encodeURIComponent(chatId)}`,
+        )
+      } catch (error) {
+        setSendError(
+          'We could not start a new chat. Please check the server and try again.',
+        )
+        setIsSending(false)
+        setIsTyping(false)
+      }
+    }
+    
   }
 
   const openChat = (chatId) => {
