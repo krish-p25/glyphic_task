@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 function App() {
   const [messages, setMessages] = useState([])
@@ -108,7 +110,7 @@ function App() {
     setIsTyping(true)
 
     if (chatId) {
-      
+
     }
     else {
       try {
@@ -153,7 +155,7 @@ function App() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-[color:var(--ink-100)]">
+    <div className="relative flex h-screen flex-col overflow-hidden text-[color:var(--ink-100)]">
       <div className="pointer-events-none absolute -left-36 -top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#ffe6b3_0%,rgba(255,230,179,0)_70%)] opacity-35" />
       <div className="pointer-events-none absolute -bottom-36 -right-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#a9e7ff_0%,rgba(169,231,255,0)_70%)] opacity-35" />
 
@@ -181,8 +183,8 @@ function App() {
         </div>
       </header>
 
-      <main className="relative z-10 grid gap-6 px-12 pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="flex min-h-[68vh] flex-col rounded-[28px] bg-white/85 shadow-[0_20px_60px_rgba(15,18,20,0.18)] backdrop-blur-xl">
+      <main className="relative z-10 grid flex-1 gap-6 overflow-hidden px-12 pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="flex min-h-0 flex-col rounded-[28px] bg-white/85 shadow-[0_20px_60px_rgba(15,18,20,0.18)] backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 px-8 pb-4 pt-7">
             <div>
               <p className="text-xl font-semibold">How can I help today?</p>
@@ -192,7 +194,7 @@ function App() {
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6">
+          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -207,7 +209,9 @@ function App() {
                       : 'bg-[#f2f4f7] text-[color:var(--ink-100)]'
                   }`}
                 >
-                  <p className="mb-2">{message.content}</p>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown >
                   <span
                     className={`block text-right text-[11px] ${
                       message.source === 'user'
@@ -261,7 +265,7 @@ function App() {
           ) : null}
         </section>
 
-        <aside className="flex flex-col gap-4 rounded-[26px] bg-white/70 p-6 shadow-[0_12px_30px_rgba(15,18,20,0.12)] backdrop-blur-lg">
+        <aside className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-[26px] bg-white/70 p-6 shadow-[0_12px_30px_rgba(15,18,20,0.12)] backdrop-blur-lg">
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-60)]">
               Chat History
@@ -273,7 +277,7 @@ function App() {
               New chat
             </button>
           </div>
-          <div className="flex-1 rounded-[20px] bg-[#f8f7f4]/95 p-4">
+          <div className="min-h-0 flex-1 overflow-y-auto rounded-[20px] bg-[#f8f7f4]/95 p-4">
             {chatHistory.length === 0 ? (
               <p className="text-sm text-[color:var(--ink-60)]">
                 No previous chats yet.
