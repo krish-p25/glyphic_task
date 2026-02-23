@@ -1,0 +1,251 @@
+import { useMemo, useState } from 'react'
+
+const initialMessages = [
+  {
+    id: 1,
+    role: 'assistant',
+    content:
+      'Hey! I can help you design a crisp chat experience. What should we build today?',
+    time: '09:41',
+  },
+  {
+    id: 2,
+    role: 'user',
+    content:
+      'We need a single-page chat screen that feels premium and focused.',
+    time: '09:42',
+  },
+]
+
+const initialHistory = [
+  {
+    id: 'chat-1',
+    title: 'Product Design Sync',
+    summary: 'UI direction and layout decisions',
+    updatedAt: 'Today · 09:42',
+  },
+  {
+    id: 'chat-2',
+    title: 'Agent Tone',
+    summary: 'Define voice guidelines',
+    updatedAt: 'Yesterday · 16:18',
+  },
+]
+
+function App() {
+  const cannedReplies = useMemo(
+    () => [
+      'Got it. I can help draft a plan and sketch the UI.',
+      'Want me to summarize the key points before we proceed?',
+      'I can generate a lightweight API contract for this flow.',
+      'That sounds doable. Do you want the chat to persist across sessions?',
+      'If you share a bit more context, I can tune the response style.',
+    ],
+    [],
+  )
+
+  const [messages, setMessages] = useState(initialMessages)
+  const [input, setInput] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const [chatHistory] = useState(initialHistory)
+
+  const sendMessage = (event) => {
+    event.preventDefault()
+    const trimmed = input.trim()
+    if (!trimmed) return
+
+    const nextMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: trimmed,
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    }
+
+    setMessages((prev) => [...prev, nextMessage])
+    setInput('')
+    setIsTyping(true)
+
+    const reply = cannedReplies[Math.floor(Math.random() * cannedReplies.length)]
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: reply,
+          time: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        },
+      ])
+      setIsTyping(false)
+    }, 900)
+  }
+
+  return (
+    <div className="relative min-h-screen overflow-hidden text-[color:var(--ink-100)]">
+      <div className="pointer-events-none absolute -left-36 -top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#ffe6b3_0%,rgba(255,230,179,0)_70%)] opacity-35" />
+      <div className="pointer-events-none absolute -bottom-36 -right-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#a9e7ff_0%,rgba(169,231,255,0)_70%)] opacity-35" />
+
+      <header className="relative z-10 flex flex-wrap items-center justify-between gap-6 px-12 pb-6 pt-8">
+        <div className="flex items-center gap-4">
+          <div className="grid h-12 w-12 place-items-center rounded-[18px] bg-gradient-to-br from-[#101820] to-[#283341] text-lg font-bold tracking-[0.04em] text-[#f4efe7] shadow-[0_12px_30px_rgba(15,18,20,0.12)]">
+            G
+          </div>
+          <div>
+            <p className="text-lg font-semibold">Glyphic Agent</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-60)]">
+              Responsive · Focused · Calm
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-[color:var(--ink-80)]">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#2bd96b] shadow-[0_0_12px_rgba(43,217,107,0.6)]" />
+          Online
+        </div>
+      </header>
+
+      <main className="relative z-10 grid gap-6 px-12 pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="flex min-h-[68vh] flex-col rounded-[28px] bg-white/85 shadow-[0_20px_60px_rgba(15,18,20,0.18)] backdrop-blur-xl">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 px-8 pb-4 pt-7">
+            <div>
+              <p className="text-xl font-semibold">Product Design Sync</p>
+              <p className="mt-1 text-sm text-[color:var(--ink-60)]">
+                Last updated just now · Drafting shared notes
+              </p>
+            </div>
+            <button
+              className="rounded-full border border-black/15 px-4 py-2 text-xs font-semibold text-[color:var(--ink-80)] transition hover:-translate-y-0.5"
+              type="button"
+            >
+              New thread
+            </button>
+          </div>
+
+          <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[68%] rounded-[20px] px-4 pb-3 pt-4 text-sm leading-relaxed shadow-[0_12px_30px_rgba(15,18,20,0.12)] ${
+                    message.role === 'user'
+                      ? 'bg-gradient-to-br from-[#1a2a3b] to-[#2d3f52] text-[#f7f3ed]'
+                      : 'bg-[#f2f4f7] text-[color:var(--ink-100)]'
+                  }`}
+                >
+                  <p className="mb-2">{message.content}</p>
+                  <span
+                    className={`block text-right text-[11px] ${
+                      message.role === 'user'
+                        ? 'text-[#f7f3ed]/70'
+                        : 'text-[color:var(--ink-50)]'
+                    }`}
+                  >
+                    {message.time}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="inline-flex items-center gap-1 rounded-[20px] bg-[#f2f4f7] px-4 py-3 shadow-[0_12px_30px_rgba(15,18,20,0.12)]">
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-[#ced4dd] [animation-delay:0ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-[#ced4dd] [animation-delay:120ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-[#ced4dd] [animation-delay:240ms]" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <form
+            className="flex flex-wrap items-end gap-4 border-t border-black/10 px-6 pb-6 pt-4"
+            onSubmit={sendMessage}
+          >
+            <div className="flex flex-1 flex-col gap-3 rounded-[20px] bg-[#f7f5f1] px-4 py-3">
+              <textarea
+                rows="1"
+                className="w-full resize-none bg-transparent text-sm text-[color:var(--ink-100)] outline-none"
+                placeholder="Send a message…"
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+              />
+              <div className="flex gap-2">
+                <button
+                  className="rounded-full bg-[#1a2a3b]/10 px-3 py-1 text-xs text-[color:var(--ink-80)]"
+                  type="button"
+                >
+                  Attach
+                </button>
+                <button
+                  className="rounded-full bg-[#1a2a3b]/10 px-3 py-1 text-xs text-[color:var(--ink-80)]"
+                  type="button"
+                >
+                  Prompt
+                </button>
+              </div>
+            </div>
+            <button
+              className="h-12 rounded-[18px] bg-gradient-to-br from-[#101820] to-[#273449] px-6 text-sm font-semibold text-[#f5f0e6] shadow-[0_12px_30px_rgba(15,18,20,0.12)] transition hover:-translate-y-0.5"
+              type="submit"
+            >
+              Send
+            </button>
+          </form>
+        </section>
+
+        <aside className="flex flex-col gap-4 rounded-[26px] bg-white/70 p-6 shadow-[0_12px_30px_rgba(15,18,20,0.12)] backdrop-blur-lg">
+          <div className="flex items-center justify-between">
+            <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-60)]">
+              Chat History
+            </p>
+            <button
+              className="rounded-full bg-gradient-to-br from-[#101820] to-[#273449] px-4 py-2 text-xs font-semibold text-[#f5f0e6]"
+              type="button"
+            >
+              New chat
+            </button>
+          </div>
+          <div className="flex-1 rounded-[20px] bg-[#f8f7f4]/95 p-4">
+            {chatHistory.length === 0 ? (
+              <p className="text-sm text-[color:var(--ink-60)]">
+                No previous chats yet.
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {chatHistory.map((chat) => (
+                  <li
+                    key={chat.id}
+                    className="flex justify-between gap-4 rounded-[16px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,18,20,0.08)]"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-[color:var(--ink-90)]">
+                        {chat.title}
+                      </p>
+                      <p className="text-xs text-[color:var(--ink-60)]">
+                        {chat.summary}
+                      </p>
+                    </div>
+                    <span className="text-[11px] text-[color:var(--ink-50)]">
+                      {chat.updatedAt}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </aside>
+      </main>
+    </div>
+  )
+}
+
+export default App
