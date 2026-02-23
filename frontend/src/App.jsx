@@ -105,6 +105,13 @@ function App() {
     }
   }
 
+  const openChat = (chatId) => {
+    if (!chatId) return
+    window.location.assign(
+      `http://localhost:5173/?chat=${encodeURIComponent(chatId)}`,
+    )
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden text-[color:var(--ink-100)]">
       <div className="pointer-events-none absolute -left-36 -top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#ffe6b3_0%,rgba(255,230,179,0)_70%)] opacity-35" />
@@ -143,12 +150,6 @@ function App() {
                 
               </p>
             </div>
-            <button
-              className="cursor-pointer rounded-full border border-black/15 px-4 py-2 text-xs font-semibold text-[color:var(--ink-80)] transition hover:-translate-y-0.5"
-              type="button"
-            >
-              New thread
-            </button>
           </div>
 
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6">
@@ -240,18 +241,21 @@ function App() {
             ) : (
               <ul className="flex flex-col gap-3">
                 {chatHistory.map((chat) => (
-                  <li
-                    key={chat.id}
-                    className="flex flex-col w-full justify-between gap-1 rounded-[16px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,18,20,0.08)]"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-[color:var(--ink-90)]">
-                        {chat.title}
-                      </p>
-                    </div>
-                    <span className="text-[11px] text-[color:var(--ink-50)] flex items-center">
-                      {chat.date}
-                    </span>
+                  <li key={chat.id}>
+                    <button
+                      className="flex w-full cursor-pointer flex-col justify-between gap-1 rounded-[16px] bg-white px-4 py-3 text-left shadow-[0_10px_24px_rgba(15,18,20,0.08)] transition hover:-translate-y-0.5"
+                      type="button"
+                      onClick={() => openChat(chat.id)}
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-[color:var(--ink-90)]">
+                          {chat.title}
+                        </p>
+                      </div>
+                      <span className="flex items-center text-[11px] text-[color:var(--ink-50)]">
+                        {chat.date}
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ul>
