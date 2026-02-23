@@ -131,7 +131,7 @@ function App() {
         <section className="flex min-h-[68vh] flex-col rounded-[28px] bg-white/85 shadow-[0_20px_60px_rgba(15,18,20,0.18)] backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 px-8 pb-4 pt-7">
             <div>
-              <p className="text-xl font-semibold">Product Design Sync</p>
+              <p className="text-xl font-semibold">How can I help today?</p>
               <p className="mt-1 text-sm text-[color:var(--ink-60)]">
                 
               </p>
@@ -228,7 +228,7 @@ function App() {
                 {chatHistory.map((chat) => (
                   <li
                     key={chat.id}
-                    className="flex w-full justify-between gap-4 rounded-[16px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,18,20,0.08)]"
+                    className="flex flex-col w-full justify-between gap-1 rounded-[16px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,18,20,0.08)]"
                   >
                     <div>
                       <p className="text-sm font-semibold text-[color:var(--ink-90)]">
