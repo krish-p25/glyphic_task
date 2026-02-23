@@ -1,19 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const chatsController = require('../controllers/chats.controller.js');
+const ChatsController = require('../controllers/chats.controller.js');
 
 //GET /api/chat/get-chats
 // Gets most recent chats, limit 50
 router.get(
     '/get-chats',
-    chatsController.getChats
+    ChatsController.GetChats
 )
 
 // POST /api/chat/create
 // Creates a new chat session
 router.post(
     '/create',
-    chatsController.createChat
+    ChatsController.CreateChat
 );
+
+// GET /api/chat/get-messages
+// Retrieves all messages within a chat
+router.get(
+    '/get-messages',
+    ChatsController.GetMessages
+)
 
 module.exports = router;
