@@ -22,11 +22,14 @@ async function GetChats(req, res) {
 async function CreateChat(req, res) {
     try {
         const { message } = req.body;
+
+        // Create new Chat object
         const newChat = await Chat.create({
             title: message,
             timestamp: Date.now(),
         });
 
+        // Create new Message object and assign to chat id
         await Message.create({
             content: message,
             timestamp: Date.now(),
@@ -65,7 +68,8 @@ async function CreateChat(req, res) {
                             'do not include any other text in your response other than just the API URL' + 
                             'If no API URL can be generated due to lack of information, prompt the user with a message which finelines what informaiton you need.' + 
                             'If finelining what you need, do not state you are creating an API endpoint or state the exact variable name, state name, email etc.' + 
-                            'Try to create an API URL always where possible'
+                            'Try to create an API URL always where possible ' + 
+                            'Do not prompt the user to provide more information if at least one variable is already in the API URL'
                         }
                     ]
                 }
@@ -80,21 +84,21 @@ async function CreateChat(req, res) {
                 checkUrl = new URL(parsedAPIURL.trim())
             }
             catch (err) {
-                res.status(201).json({
-                    uuid: newChat.uuid,
-                    message: claudeResponse.content[0].text.trim()
-                });
-
+                // If no URL is generated, return response to user
                 await Message.create({
                     content: claudeResponse.content[0].text.trim(),
                     timestamp: Date.now(),
                     chat_id: newChat.uuid,
                     source: 'bot'
                 })
+
+                res.status(201).json({
+                    uuid: newChat.uuid,
+                    message: claudeResponse.content[0].text.trim()
+                });
             }
 
-            return
-
+            // Make request to Glyphic API with generated API endpoint
             const newAPIRequest = await APIRequest.create({
                 chat_id: newChat.uuid,
                 api_url: parsedAPIURL.trim(),
@@ -111,6 +115,7 @@ async function CreateChat(req, res) {
             )
             const CallsData = response.data
 
+            // Create chat with Claude with user query and call data
             const DataAnalysis = await anthropic.messages.create({
                 model: "claude-haiku-4-5",
                 max_tokens: 500,
@@ -128,17 +133,27 @@ async function CreateChat(req, res) {
                                 type: 'text',
                                 text:
                                     `This is the query from your user: ${message}` + 
-                                    'Use the JSON data attached to answer their query.'
-                            },
-                            {
-                                type: 'json',
-                                data: CallsData
+                                    'The JSON sales data has been stringified below' + 
+                                    `${JSON.stringify(CallsData)}`
                             }
                         ]
                     }
                 ]
             })
-            console.log(DataAnalysis)
+            
+            const DataAnalysisResponse = DataAnalysis.content[0].text.trim()
+
+            // Create new Message object for user to see response
+            await Message.create({
+                content: DataAnalysisResponse,
+                timestamp: Date.now(),
+                chat_id: newChat.uuid,
+                source: 'bot'
+            })
+
+            res.status(201).json({
+                uuid: newChat.uuid
+            });
         }
         catch (err) {
             console.log('⚠️ Query returned with no API URL', newChat.uuid)
@@ -147,10 +162,7 @@ async function CreateChat(req, res) {
                 uuid: newChat.uuid,
                 message: claudeResponse.content[0].text.trim()
             });
-
         }
-        
-
     }
     catch (error) {
         console.error('❌ Error creating chat:', error);
