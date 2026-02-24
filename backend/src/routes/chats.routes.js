@@ -23,4 +23,11 @@ router.get(
     ChatsController.GetMessages
 )
 
+// POST /api/chat/send-message
+// Adds a message to an existing chat
+router.post(
+    '/send-message',
+    ChatsController.AddMessageToChat
+)
+
 module.exports = router;
