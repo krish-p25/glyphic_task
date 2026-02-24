@@ -97,6 +97,7 @@ function App() {
     loadMessages()
   }, [])
 
+  // When a chat is loaded, screen will scroll to most recent message
   useEffect(() => {
     if (!messagesReady || didAutoScrollRef.current) return
     const container = messagesContainerRef.current
@@ -205,6 +206,7 @@ function App() {
     
   }
 
+  // Function to open a chat from chat history panel
   const openChat = (chatId) => {
     if (!chatId) return
     window.location.assign(
@@ -212,6 +214,7 @@ function App() {
     )
   }
 
+  // Function to start new chat using New Chat button
   const startNewChat = () => {
     window.location.assign('http://localhost:5173/')
   }
