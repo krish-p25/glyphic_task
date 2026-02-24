@@ -35,7 +35,7 @@ Features such as the API Connection status in the top right of the screen, were 
 added, and then integrated by Codex on the frontend, with the /health endpoint and 
 response handling programmed manually. On mobile view, the Chat/Chat History toggle were also
 manually prompted to be added, and then integrated by Codex. From this point some of the mobile 
-tailwind classes were clashing so these fixes were integrated manually, this includes the <main> 
+tailwind classes were clashing so these fixes were integrated manually, this includes the < main > 
 element being a grid on wide screens and vertical flexbox on mobile.
 
 Codex was not used for any backend development. 
