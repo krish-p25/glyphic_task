@@ -14,6 +14,8 @@ function App() {
   const messagesContainerRef = useRef(null)
   const didAutoScrollRef = useRef(false)
   const lastMessageRef = useRef(null)
+  const shouldScrollToBottomRef = useRef(false)
+  const [activeMobilePanel, setActiveMobilePanel] = useState('chat')
 
   // Loading of dynamic elements on mount
   useEffect(() => {
@@ -106,7 +108,7 @@ function App() {
     const runScroll = () => {
       if (container.scrollHeight > container.clientHeight && lastMessageRef.current) {
         const targetTop = lastMessageRef.current.offsetTop - container.offsetTop
-        container.scrollTop = targetTop
+        container.scrollTo({ top: targetTop, behavior: 'smooth' })
       }
       didAutoScrollRef.current = true
     }
@@ -114,6 +116,19 @@ function App() {
     const rafId = window.requestAnimationFrame(runScroll)
     return () => window.cancelAnimationFrame(rafId)
   }, [messagesReady, messages.length])
+
+  useEffect(() => {
+    if (!shouldScrollToBottomRef.current) return
+    const container = messagesContainerRef.current
+    if (!container) return
+
+    const rafId = window.requestAnimationFrame(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
+      shouldScrollToBottomRef.current = false
+    })
+
+    return () => window.cancelAnimationFrame(rafId)
+  }, [messages.length])
 
   // Send a message to the backend
   // Seperate processing for new chat or just send message
@@ -132,6 +147,7 @@ function App() {
     }
 
     setMessages((prev) => [...prev, nextMessage])
+    shouldScrollToBottomRef.current = true
     setInput('')
     setSendError('')
     setIsSending(true)
@@ -220,11 +236,11 @@ function App() {
   }
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden text-[color:var(--ink-100)]">
+    <div className="relative flex h-[100dvh] flex-col overflow-hidden text-[color:var(--ink-100)] lg:h-screen">
       <div className="pointer-events-none absolute -left-36 -top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#ffe6b3_0%,rgba(255,230,179,0)_70%)] opacity-35" />
       <div className="pointer-events-none absolute -bottom-36 -right-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,#a9e7ff_0%,rgba(169,231,255,0)_70%)] opacity-35" />
 
-      <header className="relative z-10 flex flex-wrap items-center justify-between gap-6 px-12 pb-6 pt-8">
+      <header className="relative z-10 flex flex-wrap items-center justify-between gap-4 px-4 pb-4 pt-5 sm:gap-6 sm:px-6 sm:pt-6 lg:px-12 lg:pb-6 lg:pt-8">
         <div className="flex items-center gap-4">
           <div className="grid h-12 w-12 place-items-center rounded-[18px] bg-gradient-to-br from-[#101820] to-[#283341] text-lg font-bold tracking-[0.04em] text-[#f4efe7] shadow-[0_12px_30px_rgba(15,18,20,0.12)]">
             G
@@ -248,9 +264,38 @@ function App() {
         </div>
       </header>
 
-      <main className="relative z-10 grid flex-1 gap-6 overflow-hidden px-12 pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="flex min-h-0 flex-col rounded-[28px] bg-white/85 shadow-[0_20px_60px_rgba(15,18,20,0.18)] backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 px-8 pb-4 pt-7">
+      <main className="relative z-10 flex flex-col  flex-1 min-h-0 grid-rows-[auto,1fr] gap-4 overflow-hidden px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-none lg:gap-6 lg:px-12 lg:pb-12">
+        <div className="h-fit flex items-center gap-2 rounded-[18px] bg-white/80 p-2 text-sm shadow-[0_12px_30px_rgba(15,18,20,0.1)] backdrop-blur-lg lg:hidden">
+          <button
+            className={`flex-1 rounded-[14px] px-3 py-2 font-semibold transition ${
+              activeMobilePanel === 'chat'
+                ? 'bg-gradient-to-br from-[#101820] to-[#273449] text-[#f5f0e6]'
+                : 'text-[color:var(--ink-70)]'
+            }`}
+            type="button"
+            onClick={() => setActiveMobilePanel('chat')}
+          >
+            Chat
+          </button>
+          <button
+            className={`flex-1 rounded-[14px] px-3 py-2 font-semibold transition ${
+              activeMobilePanel === 'history'
+                ? 'bg-gradient-to-br from-[#101820] to-[#273449] text-[#f5f0e6]'
+                : 'text-[color:var(--ink-70)]'
+            }`}
+            type="button"
+            onClick={() => setActiveMobilePanel('history')}
+          >
+            Chat History
+          </button>
+        </div>
+
+        <section
+          className={`min-h-0 h-full flex-col rounded-[24px] bg-white/85 shadow-[0_20px_60px_rgba(15,18,20,0.18)] backdrop-blur-xl sm:rounded-[28px] ${
+            activeMobilePanel === 'chat' ? 'flex' : 'hidden'
+          } lg:flex`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 px-5 pb-4 pt-5 sm:px-8 sm:pt-7">
             <div>
               <p className="text-xl font-semibold">How can I help today?</p>
               <p className="mt-1 text-sm text-[color:var(--ink-60)]">
@@ -260,7 +305,7 @@ function App() {
           </div>
 
           <div
-            className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6 transition-opacity duration-500 ${
+            className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 pb-2 pt-5 transition-opacity duration-500 sm:px-8 sm:pt-6 ${
               messagesReady ? 'opacity-100' : 'opacity-0'
             }`}
             ref={messagesContainerRef}
@@ -274,7 +319,7 @@ function App() {
                 }`}
               >
                 <div
-                  className={`max-w-[68%] rounded-[20px] px-4 pb-3 pt-4 text-sm leading-relaxed shadow-[0_12px_30px_rgba(15,18,20,0.12)] ${
+                  className={`max-w-[90%] rounded-[20px] px-4 pb-3 pt-4 text-sm leading-relaxed shadow-[0_12px_30px_rgba(15,18,20,0.12)] sm:max-w-[72%] lg:max-w-[68%] ${
                     message.source === 'user'
                       ? 'bg-gradient-to-br from-[#1a2a3b] to-[#2d3f52] text-[#f7f3ed]'
                       : 'bg-[#f2f4f7] text-[color:var(--ink-100)]'
@@ -308,7 +353,7 @@ function App() {
           </div>
 
           <form
-            className="flex flex-wrap items-end gap-4 border-t border-black/10 px-6 pb-6 pt-4"
+            className="flex flex-wrap items-end gap-4 border-t border-black/10 px-4 pb-5 pt-4 sm:px-6 sm:pb-6"
             onSubmit={sendMessage}
           >
             <div className="flex flex-1 flex-col gap-3 rounded-[20px] bg-[#f7f5f1] px-4 py-3 h-12">
@@ -336,7 +381,11 @@ function App() {
           ) : null}
         </section>
 
-        <aside className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-[26px] bg-white/70 p-6 shadow-[0_12px_30px_rgba(15,18,20,0.12)] backdrop-blur-lg">
+        <aside
+          className={`min-h-0 h-full flex-col gap-4 overflow-hidden rounded-[24px] bg-white/70 p-4 shadow-[0_12px_30px_rgba(15,18,20,0.12)] backdrop-blur-lg sm:rounded-[26px] sm:p-6 ${
+            activeMobilePanel === 'history' ? 'flex' : 'hidden'
+          } lg:flex`}
+        >
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-60)]">
               Chat History
@@ -349,7 +398,7 @@ function App() {
               New Chat
             </button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto rounded-[20px] bg-[#f8f7f4]/95 p-4">
+          <div className="min-h-0 flex-1 overflow-y-auto rounded-[20px] bg-[#f8f7f4]/95 p-3 sm:p-4">
             {chatHistory.length === 0 ? (
               <p className="text-sm text-[color:var(--ink-60)]">
                 No previous chats yet.
