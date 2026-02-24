@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -11,6 +11,9 @@ function App() {
   const [sendError, setSendError] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messagesReady, setMessagesReady] = useState(false)
+  const messagesContainerRef = useRef(null)
+  const didAutoScrollRef = useRef(false)
+  const lastMessageRef = useRef(null)
 
   // Loading of dynamic elements on mount
   useEffect(() => {
@@ -93,6 +96,23 @@ function App() {
 
     loadMessages()
   }, [])
+
+  useEffect(() => {
+    if (!messagesReady || didAutoScrollRef.current) return
+    const container = messagesContainerRef.current
+    if (!container) return
+
+    const runScroll = () => {
+      if (container.scrollHeight > container.clientHeight && lastMessageRef.current) {
+        const targetTop = lastMessageRef.current.offsetTop - container.offsetTop
+        container.scrollTop = targetTop
+      }
+      didAutoScrollRef.current = true
+    }
+
+    const rafId = window.requestAnimationFrame(runScroll)
+    return () => window.cancelAnimationFrame(rafId)
+  }, [messagesReady, messages.length])
 
   // Send a message to the backend
   // Seperate processing for new chat or just send message
@@ -240,10 +260,12 @@ function App() {
             className={`flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-8 pb-2 pt-6 transition-opacity duration-500 ${
               messagesReady ? 'opacity-100' : 'opacity-0'
             }`}
+            ref={messagesContainerRef}
           >
-            {messages.map((message) => (
+            {messages.map((message, index) => (
               <div
                 key={message.id}
+                ref={index === messages.length - 1 ? lastMessageRef : null}
                 className={`flex ${
                   message.source === 'user' ? 'justify-end' : 'justify-start'
                 }`}
