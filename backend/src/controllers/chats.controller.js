@@ -250,7 +250,7 @@ async function AddMessageToChat(req, res) {
             system: [
                 {
                     type: 'text',
-                    text: `You are a data analyst assistant. Do NOT use triple backticks.`
+                    text: `You are a data analyst assistant. Do NOT use triple backticks. Do NOT have two or more consecutive line breaks`
                 }
             ],
             messages: [
@@ -291,7 +291,7 @@ async function AddMessageToChat(req, res) {
                 }
             ]
         })
-        
+
         //Parse Next Step and process accordingly
         const NextStep = DataAnalysis.content[0].text.split('\n')[0]
 
