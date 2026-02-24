@@ -49,6 +49,7 @@ function App() {
         if (isMounted) {
           setConnectionStatus('connecting')
         }
+        console.log(error)
       }
     }
     checkHealth()
@@ -116,7 +117,37 @@ function App() {
     setIsTyping(true)
 
     if (chatId) {
+      try {
+        const response = await fetch('http://localhost:3001/api/chats/send-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: trimmed,
+            chatId
+          }),
+        })
 
+        if (response.status !== 201) {
+          throw new Error('Unexpected response')
+        }
+
+        if (!chatId) {
+          throw new Error('Missing chat id')
+        }
+
+        window.location.assign(
+          `http://localhost:5173/?chat=${encodeURIComponent(chatId)}`,
+        )
+      } catch (error) {
+        setSendError(
+          'We could not start a new chat. Please check the server and try again.',
+        )
+        setIsSending(false)
+        setIsTyping(false)
+        console.log(error)
+      }
     }
     else {
       try {
@@ -148,6 +179,7 @@ function App() {
         )
         setIsSending(false)
         setIsTyping(false)
+        console.log(error)
       }
     }
     
