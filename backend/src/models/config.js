@@ -21,8 +21,20 @@ const sequelize = new Sequelize(
 //Test the connection
 async function testConnection() {
     try {
+
+        // Authenticate database connection
         await sequelize.authenticate();
         console.log('✅ Database connection established successfully.');
+        
+        // Sync tables
+        const { Chat } = require('./Chat.js');
+        const { Message } = require('./Message.js');
+        const { APIRequest } = require('./APIRequest.js');
+
+        await Chat.sync()
+        await Message.sync()
+        await APIRequest.sync()
+        console.log('✅ Database tables synced successfully.');
     } catch (error) {
         console.error('❌ Unable to connect to the database:', error);
         throw error;
