@@ -10,11 +10,11 @@ const APIRequest = sequelize.define('APIRequest', {
         primaryKey: true
     },
     chat_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false
     },
     api_url: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     },
     timestamp: {
@@ -22,7 +22,7 @@ const APIRequest = sequelize.define('APIRequest', {
         allowNull: false,
     },
     type: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     }
 }, {
