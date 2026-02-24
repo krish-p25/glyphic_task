@@ -384,6 +384,7 @@ async function GenerateReponse(chat_id) {
             }
         })
 
+        // Extract all relevant information from Glyphic API
         let StoredInformation = []
         for (const Endpoint of AllAPIEndpoints) {
             const response = await axios.get(
@@ -425,6 +426,7 @@ async function GenerateReponse(chat_id) {
             ]
         })
 
+        // Log response
         const DataAnalysisInformation = DataAnalysis.content[0].text
         await Message.create({
             chat_id,
