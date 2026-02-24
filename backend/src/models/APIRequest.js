@@ -20,6 +20,10 @@ const APIRequest = sequelize.define('APIRequest', {
     timestamp: {
         type: DataTypes.BIGINT,
         allowNull: false,
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false,
     }
 }, {
     timestamps: false,
