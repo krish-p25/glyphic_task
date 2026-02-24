@@ -15,9 +15,11 @@
    npm install
 
 3. Start backend:
+   cd backend
    node server.js
 
 4. Start frontend:
+   cd frontend
    npm run dev
 
 ## AI Assistance
