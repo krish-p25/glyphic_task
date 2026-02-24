@@ -362,6 +362,7 @@ async function AddMessageToChat(req, res) {
     }
 }
 
+// Generate responses to a chat
 async function GenerateReponse(chat_id) {
     try {
         const AllChatHistory = await Message.findAll({
