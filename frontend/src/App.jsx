@@ -82,7 +82,9 @@ function App() {
         )
         if (!response.ok) return
         const data = await response.json()
-        const hydrated = data.messages.map((message, index) => ({
+        const hydrated = data.messages
+        .sort((a, b) => parseFloat(a.timestamp) - parseFloat(b.timestamp))
+        .map((message, index) => ({
           id: message.uuid ?? `${chatId}-${index}`,
           source: message.source,
           content: message.content,
@@ -107,7 +109,7 @@ function App() {
 
     const runScroll = () => {
       if (container.scrollHeight > container.clientHeight && lastMessageRef.current) {
-        const targetTop = lastMessageRef.current.offsetTop - container.offsetTop
+        const targetTop = lastMessageRef.current.offsetTop - container.offsetTop - 10
         container.scrollTo({ top: targetTop, behavior: 'smooth' })
       }
       didAutoScrollRef.current = true
@@ -264,7 +266,7 @@ function App() {
         </div>
       </header>
 
-      <main className="relative z-10 flex flex-col  flex-1 min-h-0 grid-rows-[auto,1fr] gap-4 overflow-hidden px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-none lg:gap-6 lg:px-12 lg:pb-12">
+      <main className="relative z-10 flex flex-col lg:grid flex-1 min-h-0 grid-rows-[auto,1fr] gap-4 overflow-hidden px-4 pb-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-none lg:gap-6 lg:px-12 lg:pb-12">
         <div className="h-fit flex items-center gap-2 rounded-[18px] bg-white/80 p-2 text-sm shadow-[0_12px_30px_rgba(15,18,20,0.1)] backdrop-blur-lg lg:hidden">
           <button
             className={`flex-1 rounded-[14px] px-3 py-2 font-semibold transition ${
