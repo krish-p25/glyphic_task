@@ -265,7 +265,7 @@ async function AddMessageToChat(req, res) {
                                 `Determine whether you can provide a response based off of the current chat history and information.` + 
                                 `If not, let me know if you need more information, by either getting a list of calls or getting a specific call by id.` +
                                 `Respond with only one variable from these 3 options:` +
-                                `enough_information if no information is needed and provide your response as a data analyst in the second element in the content array` +
+                                `enough_information if no information is needed and provide your response as a data analyst in the second element in the content array, do not mention api or access to chat history, your reponse should address the user directly` +
                                 `calls_list if you need to retrieve information about calls, build the api endpoint which is instructed in the next message and return just this api endpoint alone in the second element in the content array` +
                                 `get_call if you need to retrive information about one specific call, send the API endpoint as a second element in the content array (https://api.staging.glyphic.ai/v1/calls/{call_id} where call_id is the call_id of the call you need informaiton about)` +
                                 `Chat history: ${JSON.stringify(MappedChatHistory)}` + 
