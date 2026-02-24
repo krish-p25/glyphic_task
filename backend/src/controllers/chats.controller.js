@@ -97,7 +97,7 @@ async function CreateChat(req, res) {
 
             // Make request to Glyphic API with generated API endpoint
             // Store API Request endpoint for future reference if user returns to chat
-            const newAPIRequest = await APIRequest.create({
+            await APIRequest.create({
                 chat_id: newChat.uuid,
                 api_url: parsedAPIURL.trim(),
                 timestamp: Date.now(),
@@ -209,6 +209,7 @@ async function AddMessageToChat(req, res) {
             source: 'user'
         })
 
+        // Map chat history to later pass into Claude
         const AllChatHistory = await Message.findAll({
             where: {
                 chat_id: chatId
@@ -228,6 +229,7 @@ async function AddMessageToChat(req, res) {
             }
         })
 
+        // Create store of information from API to pass to Claude
         let StoredInformation = []
         for (const Endpoint of AllAPIEndpoints) {
             const response = await axios.get(
@@ -248,7 +250,7 @@ async function AddMessageToChat(req, res) {
             system: [
                 {
                     type: 'text',
-                    text: `You are a data analyst assistant`
+                    text: `You are a data analyst assistant. Do NOT use triple backticks.`
                 }
             ],
             messages: [
@@ -290,6 +292,7 @@ async function AddMessageToChat(req, res) {
             ]
         })
         
+        //Parse Next Step and process accordingly
         const NextStep = DataAnalysis.content[0].text.split('\n')[0]
 
         if (NextStep == 'enough_information') {
