@@ -385,7 +385,6 @@ async function GenerateReponse(chat_id) {
 
         let StoredInformation = []
         for (const Endpoint of AllAPIEndpoints) {
-            console.log(Endpoint.api_url)
             const response = await axios.get(
                 `${Endpoint.api_url}`,
                 {
@@ -396,7 +395,6 @@ async function GenerateReponse(chat_id) {
             );
             Endpoint.type === 'calls_list' ? StoredInformation.push(response.data.data) : StoredInformation.push([response.data])
         }
-        console.log(StoredInformation)
 
         // Prompt Claude to analyse whether new information is needed from Glyphic API
         const DataAnalysis = await anthropic.messages.create({
